@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gemini Chatbot</title>
+    <style>
+        .chat-container {
+            width: 400px;
+            margin: 0 auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        .chat-messages {
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+        }
+
+        .chat-messages p {
+            margin: 5px 0;
+        }
+
+        .chat-input {
+            display: flex;
+        }
+
+        .chat-input input {
+            flex-grow: 1;
+            padding: 5px;
+        }
+
+        .chat-input button {
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-messages"></div>
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+    <script>
+       const chatMessages = document.querySelector('.chat-messages');
+const userInput = document.getElementById('user-input');
+const initialPrompt = "Suppose you are a very good, faithful and good partner. What will you reply to this? Only give reply, please don't give any suggestions or any additional text. ";
+
+async function sendMessage() {
+  const userMessage = userInput.value;
+  const prompt = initialPrompt + userMessage;
+
+  // Display the user's message
+  const userMessageDiv = document.createElement('p');
+  userMessageDiv.textContent = `You: ${userMessage}`;
+  chatMessages.appendChild(userMessageDiv);
+
+  try {
+    // Construct the API request body
+    const requestBody = JSON.stringify({
+      contents: [{
+        parts: [{
+          text: prompt
+        }]
+      }]
+    });
+
+    // Build the API URL with the API key
+    const apiKey = 'AIzaSyBixi3ocgjmN-i97is8oAuGIzTfPKYIawk';
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+
+    // Send the POST request using fetch
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: requestBody
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const botMessage = data.candidates[0].content.parts[0].text;
+
+    // Display the bot's response
+    const botMessageDiv = document.createElement('p');
+    botMessageDiv.textContent = `Epsit: ${botMessage}`;
+    chatMessages.appendChild(botMessageDiv);
+  } catch (error) {
+    console.error('Error:', error);
+    // Handle the error, e.g., display an error message to the user
+    const errorMessageDiv = document.createElement('p');
+    errorMessageDiv.textContent = `Error: ${error.message}`;
+    chatMessages.appendChild(errorMessageDiv);
+  } finally {
+    userInput.value = '';
+  }
+}
+    </script>
+</body>
+</html>
