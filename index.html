@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Chat with Epsit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
             background-color: #fce4ec;
@@ -11,10 +12,13 @@
             justify-content: center;
             height: 100vh;
             margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
         }
 
         .chat-container {
-            width: 400px;
+            width: 100%;
+            max-width: 400px;
             border: 2px solid #ff80ab;
             border-radius: 10px;
             background: #fff0f6;
@@ -24,6 +28,7 @@
 
         .chat-messages {
             height: 300px;
+            max-height: 50vh;
             overflow-y: auto;
             padding: 10px;
             border-radius: 8px;
@@ -36,19 +41,22 @@
             font-size: 16px;
             color: #880e4f;
             animation: fadeIn 0.5s ease-out;
+            word-wrap: break-word;
         }
 
         .chat-input {
             display: flex;
+            flex-direction: row;
             gap: 10px;
         }
 
         .chat-input input {
             flex-grow: 1;
-            padding: 8px;
+            padding: 12px;
             border-radius: 20px;
             border: 1px solid #ff80ab;
             outline: none;
+            font-size: 14px;
             transition: all 0.2s ease-in;
         }
 
@@ -58,12 +66,13 @@
         }
 
         .chat-input button {
-            padding: 8px 15px;
+            padding: 10px;
             border: none;
             border-radius: 20px;
             background-color: #ff80ab;
             color: white;
             font-weight: bold;
+            font-size: 14px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -87,7 +96,7 @@
         /* Heartbeat animation */
         .chat-container:before {
             content: "❤️";
-            font-size: 40px;
+            font-size: 32px;
             color: #ff80ab;
             animation: heartbeat 1.5s infinite;
             display: flex;
@@ -103,6 +112,28 @@
                 transform: scale(1.2);
             }
         }
+
+        /* Responsive adjustments */
+        @media (max-width: 500px) {
+            .chat-container {
+                padding: 15px;
+            }
+
+            .chat-messages {
+                height: 200px;
+                max-height: 40vh;
+            }
+
+            .chat-input input {
+                padding: 10px;
+                font-size: 12px;
+            }
+
+            .chat-input button {
+                padding: 8px;
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -114,64 +145,64 @@
         </div>
     </div>
     <script>
-       const chatMessages = document.querySelector('.chat-messages');
-const userInput = document.getElementById('user-input');
-const initialPrompt = "Suppose you are a very good, faithful and good partner. What will you reply to this? Only give reply, please don't give any suggestions or any additional text. ";
+        const chatMessages = document.querySelector('.chat-messages');
+        const userInput = document.getElementById('user-input');
+        const initialPrompt = "Suppose you are a very good, faithful and good partner. What will you reply to this? Only give reply, please don't give any suggestions or any additional text. ";
 
-async function sendMessage() {
-  const userMessage = userInput.value;
-  const prompt = initialPrompt + userMessage;
+        async function sendMessage() {
+          const userMessage = userInput.value;
+          const prompt = initialPrompt + userMessage;
 
-  // Display the user's message
-  const userMessageDiv = document.createElement('p');
-  userMessageDiv.textContent = `You: ${userMessage}`;
-  chatMessages.appendChild(userMessageDiv);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
+          // Display the user's message
+          const userMessageDiv = document.createElement('p');
+          userMessageDiv.textContent = `You: ${userMessage}`;
+          chatMessages.appendChild(userMessageDiv);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
 
-  try {
-    // Construct the API request body
-    const requestBody = JSON.stringify({
-      contents: [{
-        parts: [{
-          text: prompt
-        }]
-      }]
-    });
+          try {
+            // Construct the API request body
+            const requestBody = JSON.stringify({
+              contents: [{
+                parts: [{
+                  text: prompt
+                }]
+              }]
+            });
 
-    // Build the API URL with the API key
-    const apiKey = 'AIzaSyBixi3ocgjmN-i97is8oAuGIzTfPKYIawk';
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+            // Build the API URL with the API key
+            const apiKey = 'AIzaSyBixi3ocgjmN-i97is8oAuGIzTfPKYIawk';
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
 
-    // Send the POST request using fetch
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: requestBody
-    });
+            // Send the POST request using fetch
+            const response = await fetch(apiUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: requestBody
+            });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
 
-    const data = await response.json();
-    const botMessage = data.candidates[0].content.parts[0].text;
+            const data = await response.json();
+            const botMessage = data.candidates[0].content.parts[0].text;
 
-    // Display the bot's response
-    const botMessageDiv = document.createElement('p');
-    botMessageDiv.textContent = `Epsit: ${botMessage}`;
-    chatMessages.appendChild(botMessageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  } catch (error) {
-    console.error('Error:', error);
-    const errorMessageDiv = document.createElement('p');
-    errorMessageDiv.textContent = `Error: ${error.message}`;
-    chatMessages.appendChild(errorMessageDiv);
-  } finally {
-    userInput.value = '';
-  }
-}
+            // Display the bot's response
+            const botMessageDiv = document.createElement('p');
+            botMessageDiv.textContent = `Epsit: ${botMessage}`;
+            chatMessages.appendChild(botMessageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+          } catch (error) {
+            console.error('Error:', error);
+            const errorMessageDiv = document.createElement('p');
+            errorMessageDiv.textContent = `Error: ${error.message}`;
+            chatMessages.appendChild(errorMessageDiv);
+          } finally {
+            userInput.value = '';
+          }
+        }
     </script>
 </body>
 </html>
